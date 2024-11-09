@@ -108,7 +108,7 @@ export const Map = ({
             cy={mappedY + 1}
             r="12"
           />
-          <circle className="fill-secondary hover:scale-110" cx={mappedX} cy={mappedY} r="10"/>
+          <circle className="fill-secondary duration-300 hover:fill-white" cx={mappedX} cy={mappedY} r="10"/>
         </g>
       ))}
             <g className="animate-pulse pointer-events-none">

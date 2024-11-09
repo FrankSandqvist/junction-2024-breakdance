@@ -57,14 +57,13 @@ export default function MapPage() {
   };
 
   return (
-    <main className="">
+    <main className="absolute w-screen h-screen overflow-hidden md:relative md:w-full">
       {coordinates ? (
-        <div className="absolute inset-0 p-4 flex flex-col ">
+        <div className="absolute inset-0 p-4 pb-20 flex flex-col ">
           <div
-            className={`absolute bottom-0 left-0 right-0 backdrop-blur-lg bg-gradient-to-t from-darkBlue via-darkBlue to-secondary/50 duration-300 pt-4 px-8 ${
+            className={`absolute bottom-0 left-0 right-0 backdrop-blur-lg bg-gradient-to-t from-darkBlue via-darkBlue to-secondary/50 rounded-t-xl duration-300 pt-4 px-8 ${
               viewingReport ? "translate-y-0" : "translate-y-[110%]"
             }`}
-            onClick={() => setViewingReport(false)}
           >
             <h2 className="font-jaro text-darkBlue text-2xl text-center mb-8 bg-primary px-4 py-2 -mt-8 rounded-md border-2 border-black">
               Report {viewingReportIdx + 1}
@@ -87,7 +86,6 @@ export default function MapPage() {
                 <InfoBox title="Model" value={viewingReportData.model} />
               )}
               <InfoBox
-                wide
                 title="Condition"
                 value={viewingReportData.conditionOrDamage}
               />
@@ -108,9 +106,16 @@ export default function MapPage() {
             </p>*/}
             </div>
             <img
-              src={`${process.env.NEXT_PUBLIC_BLOB_ENDPOINT}/report-${viewingReportIdx}.jpeg`} className="max-h-64 object-cover w-full"
+              src={`${process.env.NEXT_PUBLIC_BLOB_ENDPOINT}/report-${viewingReportIdx}.jpeg`}
+              className="max-h-64 object-cover w-full"
             />
           </div>
+          {viewingReport && (
+            <div
+              className="absolute inset-0"
+              onClick={() => setViewingReport(false)}
+            />
+          )}
           <h1 className=" font-jaro text-2xl text-center mb-4">
             Reported damages
           </h1>
@@ -130,7 +135,7 @@ export default function MapPage() {
             }}
           />
           <Button
-          className="duration-300 hover:scale-110"
+            className="duration-300 hover:scale-110"
             onClick={() =>
               router.push(
                 `/dance?latitude=${coordinates?.[0]}&longitude=${coordinates?.[1]}`

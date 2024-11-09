@@ -15,7 +15,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="bg-black">
       <body
         className={`${jaro.variable} antialiased overflow-hidden bg-darkBlue md:max-w-xl md:ml-auto md:mr-auto`}
       >

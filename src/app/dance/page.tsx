@@ -69,7 +69,7 @@ export default function Home() {
             if (data.wittyComment) {
               setWittyComment(data.wittyComment);
             }
-            setSuggestionForMorePhotos(data.suggestionForMorePhotos ?? "Done!");
+            setSuggestionForMorePhotos(data.suggestionForMorePhotos ?? "Done! You can submit your report.");
             setPreviousReports((r) => [...r, report]);
             setReport((r) => ({ ...r, ...data }));
           });
@@ -107,8 +107,8 @@ export default function Home() {
         <div className="absolute inset-0 bg-white animate-fadeOut z-50" />
       )}
       <div
-        className={`absolute border-b-4 left-0 right-0 bottom-16 duration-500 delay-300 p-4 flex flex-col gap-4 ${
-          reportLoading ? "-bottom-96" : ""
+        className={`absolute border-b-4 left-0 right-0 duration-500 p-4 flex flex-col gap-4 delay-1000 ${
+          reportLoading ? "-bottom-[110%]" : "bottom-16"
         }`}
       >
         <div className="grid grid-cols-2 gap-4">
@@ -146,7 +146,6 @@ export default function Home() {
             />
           )}
           <InfoBox
-            wide
             title="Condition"
             value={report.conditionOrDamage}
             onValueChange={(conditionOrDamage) => {
@@ -171,10 +170,12 @@ export default function Home() {
             Damage: <br />
             </p>*/}
         </div>
-        <Button onClick={() => uploadReport()}>Submit report</Button>
+        {previousReports.length > 0 && (
+          <Button onClick={() => uploadReport()}>Submit report</Button>
+        )}
       </div>
-      <ActionText
-        className="absolute left-16 top-16"
+      {wittyComment && <ActionText
+        className="absolute top-32 ml-auto mr-auto w-[80%]"
         style={{
           rotate: `${(report.latitude % 1) * 6 - 3}deg`,
           animationName: `actionTextAppear${(previousReports.length % 2) + 1}`,
@@ -184,10 +185,15 @@ export default function Home() {
         }}
         key={previousReports.length}
       >
-        {wittyComment ?? "Hello!"}
-      </ActionText>
-      <p className="text-white absolute left-16 top-32">
-        {suggestionForMorePhotos ?? "Take a photo of an object to get started."}
+        {wittyComment}
+      </ActionText>}
+      <p
+        className={`font-jaro text-2xl absolute left-4 right-4 p-4 text-center backdrop-blur-lg text-white bg-darkBlue/80 rounded-lg duration-300 delay-1000 ${
+          reportLoading ? "-top-[110%]" : "top-5"
+        }`}
+      >
+        {suggestionForMorePhotos ??
+          "Just tap anywhere to take a photo. Time to do the BREAKDANCE!"}
       </p>
     </main>
   );
