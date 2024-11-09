@@ -3,6 +3,7 @@
 import { ActionText } from "@/components/action-text";
 import { Button } from "@/components/button";
 import { InfoBox } from "@/components/info-box";
+import { LoadingIndicator } from "@/components/loading-indicator";
 import { reportSchema } from "@/schema/report";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -24,6 +25,7 @@ export default function Home() {
     string | null
   >(null);
   const [reportLoading, setReportLoading] = useState(false);
+  const [uploadLoading, setUploadLoading] = useState(false);
   const [lastImageBase64, setLastImageBase64] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -69,7 +71,10 @@ export default function Home() {
             if (data.wittyComment) {
               setWittyComment(data.wittyComment);
             }
-            setSuggestionForMorePhotos(data.suggestionForMorePhotos ?? "Done! You can submit your report.");
+            setSuggestionForMorePhotos(
+              data.suggestionForMorePhotos ??
+                "Done! You can submit your report."
+            );
             setPreviousReports((r) => [...r, report]);
             setReport((r) => ({ ...r, ...data }));
           });
@@ -78,6 +83,7 @@ export default function Home() {
   };
 
   const uploadReport = async () => {
+    setUploadLoading(true);
     await fetch("/api/report", {
       headers: {
         "Content-Type": "application/json",
@@ -86,7 +92,7 @@ export default function Home() {
       body: JSON.stringify({ report, lastImageBase64 }),
     });
 
-    router.push("/map");
+    router.push("/");
   };
 
   return (
@@ -99,16 +105,21 @@ export default function Home() {
         onClick={takeSnapshot}
       />
       <div
-        className={`absolute inset-0 backdrop-blur-lg pointer-events-none duration-300 ${
-          reportLoading ? "opacity-100" : "opacity-0"
+        className={`absolute inset-0 backdrop-blur-lg bg-darkBlue/60 pointer-events-none duration-300 flex flex-col gap-4 items-center justify-center font-jaro text-xl px-8 ${
+          reportLoading || uploadLoading ? "opacity-100" : "opacity-0"
         }`}
-      />
+      >
+        <LoadingIndicator />
+        {reportLoading
+          ? "Analyzing what it is, and its condition..."
+          : "Uploading your report into the database!"}
+      </div>
       {reportLoading && (
         <div className="absolute inset-0 bg-white animate-fadeOut z-50" />
       )}
       <div
         className={`absolute border-b-4 left-0 right-0 duration-500 p-4 flex flex-col gap-4 delay-1000 ${
-          reportLoading ? "-bottom-[110%]" : "bottom-16"
+          reportLoading || uploadLoading ? "-bottom-[110%]" : "bottom-16"
         }`}
       >
         <div className="grid grid-cols-2 gap-4">
@@ -174,22 +185,26 @@ export default function Home() {
           <Button onClick={() => uploadReport()}>Submit report</Button>
         )}
       </div>
-      {wittyComment && <ActionText
-        className="absolute top-32 ml-auto mr-auto w-[80%]"
-        style={{
-          rotate: `${(report.latitude % 1) * 6 - 3}deg`,
-          animationName: `actionTextAppear${(previousReports.length % 2) + 1}`,
-          animationDuration: "2s",
-          animationTimingFunction: "cubic-bezier(0.175, 0.885, 0.32, 1.275)",
-          animationFillMode: "forwards",
-        }}
-        key={previousReports.length}
-      >
-        {wittyComment}
-      </ActionText>}
+      {wittyComment && (
+        <ActionText
+          className="absolute top-32 ml-auto mr-auto w-[80%]"
+          style={{
+            rotate: `${(report.latitude % 1) * 6 - 3}deg`,
+            animationName: `actionTextAppear${
+              (previousReports.length % 2) + 1
+            }`,
+            animationDuration: "2s",
+            animationTimingFunction: "cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+            animationFillMode: "forwards",
+          }}
+          key={previousReports.length}
+        >
+          {wittyComment}
+        </ActionText>
+      )}
       <p
         className={`font-jaro text-2xl absolute left-4 right-4 p-4 text-center backdrop-blur-lg text-white bg-darkBlue/80 rounded-lg duration-300 delay-1000 ${
-          reportLoading ? "-top-[110%]" : "top-5"
+          reportLoading || uploadLoading ? "-top-[110%]" : "top-5"
         }`}
       >
         {suggestionForMorePhotos ??

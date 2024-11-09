@@ -17,7 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="bg-black">
       <body
-        className={`${jaro.variable} antialiased overflow-hidden bg-darkBlue md:max-w-xl md:ml-auto md:mr-auto`}
+        className={`${jaro.variable} antialiased overflow-hidden h-screen bg-darkBlue md:max-w-xl md:ml-auto md:mr-auto`}
       >
         <Suspense>{children}</Suspense>
       </body>
