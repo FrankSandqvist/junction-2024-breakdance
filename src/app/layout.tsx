@@ -26,7 +26,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${jaro.variable} ${grace.variable} antialiased overflow-hidden`}
+        className={`${jaro.variable} ${grace.variable} antialiased overflow-hidden bg-darkBlue md:max-w-xl md:ml-auto md:mr-auto`}
       >
         {children}
       </body>

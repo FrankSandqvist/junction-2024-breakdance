@@ -3,25 +3,19 @@
 import { ActionText } from "@/components/action-text";
 import { Map } from "@/components/map";
 import { reportSchema } from "@/schema/report";
+import { upload } from "@vercel/blob/client";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 
 export default function Home() {
-  const [report]
-  const [coordinates, setCoordinates] = useState<[number, number] | null>(null);
+  const searchParams = useSearchParams();
   const [report, setReport] = useState<z.infer<typeof reportSchema>>({
-    object: null,
-    objectCategory: null,
-    manufacturerIsRelevant: null,
-    manufacturer: null,
-    modelIsRelevant: null,
-    model: null,
-    damage: null,
-    condition: null,
-    serialNumberOrIdentifierIsRelevant: null,
-    serialNumberOrIdentifier: null,
+    latitude: Number(searchParams.get("latitude") ?? 0),
+    longitude: Number(searchParams.get("longitude") ?? 0),
   });
+  console.log(report);
   const [shortCompliment, setShortCompliment] = useState<string | null>(null);
   const [suggestionForMorePhotos, setSuggestionForMorePhotos] = useState<
     string | null
@@ -70,31 +64,33 @@ export default function Home() {
               setShortCompliment(data.shortCompliment);
             }
             setSuggestionForMorePhotos(data.suggestionForMorePhotos ?? "Done!");
-            setReport(data);
+            setReport((r) => ({ ...r, ...data }));
           });
       }
     }
   };
 
+  const uploadReport = async () => {
+    await fetch("/api/report", {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      method: "PUT",
+      body: JSON.stringify(report),
+    });
+  };
+
   return (
-    <main className="absolute w-screen h-screen overflow-hidden">
+    <main className="absolute w-screen h-screen overflow-hidden md:relative md:w-full">
       <button
         className="top-0 left-0 w-32 h-16 absolute z-50 bg-white"
         onClick={() => {
-          // navigator.geolocation.getCurrentPosition((r) => {
-          //   setCoordinates([r.coords.latitude, r.coords.longitude]);
-          // });
-          //
-          // setInterval(() => {
-          //   navigator.geolocation.getCurrentPosition((r) => {
-          //     setCoordinates([r.coords.latitude, r.coords.longitude]);
-          //   });
-          // }, 500)
+          uploadReport();
         }}
       >
         Test
       </button>
-      {coordinates && <Map markerCoords={coordinates} />}
+
       <video
         autoPlay
         playsInline
@@ -102,11 +98,16 @@ export default function Home() {
         className="absolute h-screen object-cover bg-green-400"
         onClick={takeSnapshot}
       />
+      <div
+        className={`absolute inset-0 backdrop-blur-lg pointer-events-none duration-300 ${
+          reportLoading ? "opacity-100" : "opacity-0"
+        }`}
+      />
       {reportLoading && (
         <div className="absolute inset-0 bg-white animate-fadeOut z-50" />
       )}
       <div
-        className={`absolute -bottom-8 -right-8 w-[90vw] h-[90vw] rotate-3 duration-300 ${
+        className={`absolute -bottom-8 -right-8 w-[90vw] h-[90vw] rotate-3 duration-500 delay-300 md:w-96 md:h-96 ${
           reportLoading ? "-bottom-96" : ""
         }`}
       >

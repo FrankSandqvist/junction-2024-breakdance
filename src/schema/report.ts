@@ -1,14 +1,16 @@
 import { z } from "zod";
 
 export const reportSchema = z.object({
-  object: z.string().nullable(),
-  objectCategory: z.string().nullable(),
-  manufacturerIsRelevant: z.boolean().nullable(),
-  manufacturer: z.string().nullable(),
-  modelIsRelevant: z.boolean().nullable(),
-  model: z.string().nullable(),
-  damage: z.string().nullable(),
-  condition: z.string().nullable(),
-  serialNumberOrIdentifierIsRelevant: z.boolean().nullable(),
-  serialNumberOrIdentifier: z.string().nullable(),
+  latitude: z.number(),
+  longitude: z.number(),
+  object: z.string().optional(),
+  objectCategory: z.string().optional(),
+  manufacturerIsRelevant: z.boolean().optional(),
+  manufacturer: z.string().optional(),
+  modelIsRelevant: z.boolean().optional(),
+  model: z.string().optional(),
+  damage: z.string().optional(),
+  condition: z.string().optional(),
+  serialNumberOrIdentifierIsRelevant: z.boolean().optional(),
+  serialNumberOrIdentifier: z.string().optional(),
 });

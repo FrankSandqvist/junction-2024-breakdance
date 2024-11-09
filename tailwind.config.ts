@@ -13,13 +13,15 @@ export default {
     },
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        darkBlue: "#0e083a",
+        primary: "#ffe922",
+        secondary: "#ff22c6",
       },
       animation: {
         fadeOut: "fadeOut 1s ease-in-out forwards",
         logoDance: "logoDance 2s ease-in forwards",
         logoDebree: "logoDebree 2s ease-out forwards",
+        pulseBigSmall: "pulseBigSmall 1s ease-in-out infinite",
       },
       keyframes: {
         fadeOut: {
@@ -36,6 +38,10 @@ export default {
           "88%": { transform: "scale(0)", opacity: "0" },
           "94%": { transform: "scale(1)", opacity: "1" },
         },
+        pulseBigSmall: {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.7" },
+        }
       },
     },
   },

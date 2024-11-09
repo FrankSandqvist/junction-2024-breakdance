@@ -15,14 +15,13 @@ export const POST = async (req: Request) => {
     messages: [
       {
         role: "system",
-        content:
-          `Your job is to gather relevant information about equipment being photographed.
-Specifically, what it is and its condition. You can return null if the information is not available.
+        content: `Your job is to gather relevant information about equipment being photographed.
+Specifically, what it is and its condition. Do not return the field, if the information is not available.
 For things that are not relevant for specific thing visible, return false.
-Return null for everything if nothing can be gathered.
+Do not include fields for things that cannot be gathered from the image.
 You can also provide a short compliment (for example, if's a fire extinguisher "That's fire! 🔥") and a suggestion for more photos. 
-When you are happy with the info gathered, return no suggestion (null).
-DO NOT MAKE ASSUMPTIONS ABOUT ANY PARAMETER. IF IT IS NOT CLEAR, RETURN null.`,
+When you are happy with the info gathered, return no suggestion.
+DO NOT MAKE ASSUMPTIONS ABOUT ANY PARAMETER. IF IT IS NOT CLEAR, DO NOT ADD THE FIELD.`,
       },
       {
         role: "user",
@@ -42,10 +41,15 @@ DO NOT MAKE ASSUMPTIONS ABOUT ANY PARAMETER. IF IT IS NOT CLEAR, RETURN null.`,
       },
     ],
     response_format: zodResponseFormat(
-      reportSchema.extend({
-        shortCompliment: z.string().nullable(),
-        suggestionForMorePhotos: z.string().nullable(),
-      }),
+      reportSchema
+        .omit({
+          latitude: true,
+          longitude: true,
+        })
+        .extend({
+          shortCompliment: z.string().nullable(),
+          suggestionForMorePhotos: z.string().nullable(),
+        }),
       "report"
     ),
   });
