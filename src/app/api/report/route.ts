@@ -9,7 +9,7 @@ import { put } from "@vercel/blob";
 export async function PUT(request: Request) {
   const body = await request.json();
 
-  const report = reportSchema.safeParse(body);
+  const report = reportSchema.safeParse(body.report);
 
   if (!report.success) {
     console.error(report.error);
@@ -22,6 +22,16 @@ export async function PUT(request: Request) {
       cache: "no-cache",
     }
   ).then((res) => res.json());
+
+  const index = currentReport.length;
+  await put(
+    `report-${index}.jpeg`,
+    Buffer.from(body.lastImageBase64.slice(23), "base64"),
+    {
+      access: "public",
+      addRandomSuffix: false,
+    }
+  );
 
   const updatedReports = [...currentReport, report.data];
   await put("report.json", JSON.stringify(updatedReports), {

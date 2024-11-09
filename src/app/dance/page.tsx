@@ -2,13 +2,15 @@
 
 import { ActionText } from "@/components/action-text";
 import { Button } from "@/components/button";
+import { InfoBox } from "@/components/info-box";
 import { reportSchema } from "@/schema/report";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 
 export default function Home() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [previousReports, setPreviousReports] = useState<
     Array<z.infer<typeof reportSchema>>
   >([]);
@@ -22,6 +24,7 @@ export default function Home() {
     string | null
   >(null);
   const [reportLoading, setReportLoading] = useState(false);
+  const [lastImageBase64, setLastImageBase64] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   // Set video source to phone camera
@@ -51,8 +54,10 @@ export default function Home() {
       const ctx = canvas.getContext("2d");
       if (ctx) {
         ctx.drawImage(videoRef.current, 0, 0);
-        const dataURL = canvas.toDataURL("image/png");
+        const dataURL = canvas.toDataURL("image/jpeg", 0.5);
+        //console.log(dataURL.slice(23))
         setReportLoading(true);
+        setLastImageBase64(dataURL);
         fetch("/api/analyze", {
           method: "POST",
           body: JSON.stringify({ image: dataURL, previousReports }),
@@ -78,8 +83,10 @@ export default function Home() {
         "Content-Type": "application/json",
       },
       method: "PUT",
-      body: JSON.stringify(report),
+      body: JSON.stringify({ report, lastImageBase64 }),
     });
+
+    router.push("/map");
   };
 
   return (
@@ -185,33 +192,3 @@ export default function Home() {
     </main>
   );
 }
-
-const InfoBox = ({
-  wide,
-  value,
-  title,
-  onValueChange,
-}: {
-  wide?: boolean;
-  value?: string;
-  onValueChange: (v: string) => any;
-  title: string;
-}) => {
-  return (
-    <div
-      className={`border-dashed border-primary backdrop-blur-lg border p-2 flex flex-col items-center ${
-        value ? "" : "text-white/50"
-      } ${wide ? "col-span-2" : ""}`}
-    >
-      <div className="bg-primary -mt-6 text-black px-4 font-jaro rounded-sm">
-        {title}
-      </div>
-      <input
-        type="text"
-        value={value ?? ""}
-        onChange={(e) => onValueChange(e.target.value)}
-        className="bg-transparent text-white w-full text-center"
-      />
-    </div>
-  );
-};

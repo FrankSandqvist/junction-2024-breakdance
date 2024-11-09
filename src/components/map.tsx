@@ -62,9 +62,11 @@ const mapLatLonToXY = makeTransform(
 export const Map = ({
   reports,
   currentCoords,
+  onClickReport,
 }: {
   reports: Array<[number, number]>;
   currentCoords: [number, number];
+  onClickReport: (idx: number) => any;
 }) => {
   console.log(reports);
   console.log(currentCoords);
@@ -97,55 +99,56 @@ export const Map = ({
         className="fill-primary"
         points="149.35 254.93 149.35 127.36 184.58 127.84 184.58 254.93 149.35 254.93"
       />
-      <g className="animate-pulse">
-        <rect
-          className="fill-black"
-          x={mappedX - 40}
-          y={mappedY - 28}
-          width={80}
-          height={20}
-          rx={5}
-          ry={5}
-        />
-        <rect
-          className="fill-white"
-          x={mappedX - 40}
-          y={mappedY - 30}
-          width={80}
-          height={20}
-          rx={5}
-          ry={5}
-        />
-        <text
-          x={mappedX}
-          y={mappedY - 17}
-          textAnchor="middle"
-          className="font-jaro"
-          fontSize={10}
-        >
-          You are here!
-        </text>
-        <path
-          className="fill-black"
-          d={`m ${mappedX} ${mappedY + 1} l 5 -10 l -10 0 l 5 10`}
-        />
-        <path
-          className="fill-white"
-          d={`m ${mappedX} ${mappedY - 2} l 5 -10 l -10 0 l 5 10`}
-        />
-      </g>
       {mappedReports.map(([mappedX, mappedY], i) => (
-        <g key={i}>
+        <g key={i} onClick={() => onClickReport(i)}>
           <circle
             key={i}
             className="fill-black"
             cx={mappedX}
             cy={mappedY + 1}
-            r="6"
+            r="12"
           />
-          <circle className="fill-secondary" cx={mappedX} cy={mappedY} r="5" />
+          <circle className="fill-secondary hover:scale-110" cx={mappedX} cy={mappedY} r="10"/>
         </g>
       ))}
+            <g className="animate-pulse pointer-events-none">
+        <rect
+          className="fill-black"
+          x={mappedX - 50}
+          y={mappedY - 40}
+          width={100}
+          height={30}
+          rx={5}
+          ry={5}
+        />
+        <rect
+          className="fill-white"
+          x={mappedX - 50}
+          y={mappedY - 42}
+          width={100}
+          height={30}
+          rx={5}
+          ry={5}
+        />
+        <text
+          x={mappedX}
+          y={mappedY - 22}
+          textAnchor="middle"
+          className="font-jaro"
+          fontSize={14}
+        >
+          You are here!
+        </text>
+        <path
+          className="fill-black"
+          d={`m ${mappedX} ${mappedY} l 5 -10 l -10 0 l 5 10`}
+        />
+        <path
+          className="fill-white"
+          d={`m ${mappedX} ${mappedY - 3} l 5 -10 l -10 0 l 5 10`}
+        />
+      </g>
+
     </svg>
   );
 };
