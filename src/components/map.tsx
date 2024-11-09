@@ -148,7 +148,7 @@ export const Map = ({
           d={`m ${mappedX} ${mappedY - 3} l 5 -10 l -10 0 l 5 10`}
         />
       </g>
-
+      <text x="100" y="500" fontSize={10}>MKH.dwg</text>
     </svg>
   );
 };

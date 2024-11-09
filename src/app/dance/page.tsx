@@ -73,7 +73,7 @@ export default function Home() {
             }
             setSuggestionForMorePhotos(
               data.suggestionForMorePhotos ??
-                "Done! You can submit your report."
+                "Done! You can submit your report. Edit the fields if you want."
             );
             setPreviousReports((r) => [...r, report]);
             setReport((r) => ({ ...r, ...data }));
@@ -122,7 +122,7 @@ export default function Home() {
           reportLoading || uploadLoading ? "-bottom-[110%]" : "bottom-16"
         }`}
       >
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-x-4 gap-y-6">
           <InfoBox
             title="Category"
             value={report.objectCategory}
@@ -163,7 +163,6 @@ export default function Home() {
               setReport((r) => ({ ...r, conditionOrDamage }));
             }}
           />
-
           {(report.serialNumberOrIdentifier ||
             report.serialNumberOrIdentifierIsIrrelevant !== true) && (
             <InfoBox
@@ -174,12 +173,6 @@ export default function Home() {
               }}
             />
           )}
-          {/*<p>
-            Serial Number: <br />
-            </p>
-            <p>
-            Damage: <br />
-            </p>*/}
         </div>
         {previousReports.length > 0 && (
           <Button onClick={() => uploadReport()}>Submit report</Button>
@@ -187,7 +180,7 @@ export default function Home() {
       </div>
       {wittyComment && (
         <ActionText
-          className="absolute top-32 ml-auto mr-auto w-[80%]"
+          className="absolute top-32 ml-auto mr-auto w-[70%]"
           style={{
             rotate: `${(report.latitude % 1) * 6 - 3}deg`,
             animationName: `actionTextAppear${
