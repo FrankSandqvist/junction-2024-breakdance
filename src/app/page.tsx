@@ -60,7 +60,7 @@ export default function MapPage() {
   return (
     <main className="absolute w-screen h-screen overflow-hidden md:relative md:w-full">
       {coordinates ? (
-        <div className="absolute inset-0 p-4 pb-20 flex flex-col ">
+        <div className="absolute inset-0 p-4 pb-22 flex flex-col ">
           {viewingReportData && (
             <div
               className={`absolute bottom-0 left-0 right-0 backdrop-blur-lg bg-gradient-to-t from-darkBlue via-darkBlue to-secondary/50 gradient rounded-t-xl duration-300 pt-4 px-8 ${

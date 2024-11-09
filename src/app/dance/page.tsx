@@ -119,7 +119,7 @@ export default function Home() {
       )}
       <div
         className={`absolute border-b-4 left-0 right-0 duration-500 p-4 flex flex-col gap-4 delay-1000 ${
-          reportLoading || uploadLoading ? "-bottom-[110%]" : "bottom-16"
+          reportLoading || uploadLoading ? "-bottom-[110%]" : "bottom-20"
         }`}
       >
         <div className="grid grid-cols-2 gap-x-4 gap-y-6">
