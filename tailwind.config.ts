@@ -1,3 +1,4 @@
+import { transform } from "next/dist/build/swc/generated-native";
 import type { Config } from "tailwindcss";
 
 export default {
@@ -9,7 +10,6 @@ export default {
   theme: {
     fontFamily: {
       jaro: ["Jaro", "sans-serif"],
-      grace: ["Covered by your grace", "sans-serif"],
     },
     extend: {
       colors: {
@@ -22,6 +22,12 @@ export default {
         logoDance: "logoDance 2s ease-in forwards",
         logoDebree: "logoDebree 2s ease-out forwards",
         pulseBigSmall: "pulseBigSmall 1s ease-in-out infinite",
+        actionTextAppear1:
+          "actionTextAppear1 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards",
+        actionTextAppear2:
+          "actionTextAppear2 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards",
+        actionTextAppear3:
+          "actionTextAppear3 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards",
       },
       keyframes: {
         fadeOut: {
@@ -41,7 +47,7 @@ export default {
         pulseBigSmall: {
           "0%, 100%": { opacity: "1" },
           "50%": { opacity: "0.7" },
-        }
+        },
       },
     },
   },

@@ -1,22 +1,23 @@
 "use client";
 
 import { ActionText } from "@/components/action-text";
-import { Map } from "@/components/map";
+import { Button } from "@/components/button";
 import { reportSchema } from "@/schema/report";
-import { upload } from "@vercel/blob/client";
-import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 
 export default function Home() {
   const searchParams = useSearchParams();
+  const [previousReports, setPreviousReports] = useState<
+    Array<z.infer<typeof reportSchema>>
+  >([]);
   const [report, setReport] = useState<z.infer<typeof reportSchema>>({
     latitude: Number(searchParams.get("latitude") ?? 0),
     longitude: Number(searchParams.get("longitude") ?? 0),
   });
   console.log(report);
-  const [shortCompliment, setShortCompliment] = useState<string | null>(null);
+  const [wittyComment, setWittyComment] = useState<string | null>(null);
   const [suggestionForMorePhotos, setSuggestionForMorePhotos] = useState<
     string | null
   >(null);
@@ -54,16 +55,17 @@ export default function Home() {
         setReportLoading(true);
         fetch("/api/analyze", {
           method: "POST",
-          body: JSON.stringify({ image: dataURL }),
+          body: JSON.stringify({ image: dataURL, previousReports }),
         })
           .then((res) => res.json())
           .then((data) => {
             console.log(data);
             setReportLoading(false);
-            if (data.shortCompliment) {
-              setShortCompliment(data.shortCompliment);
+            if (data.wittyComment) {
+              setWittyComment(data.wittyComment);
             }
             setSuggestionForMorePhotos(data.suggestionForMorePhotos ?? "Done!");
+            setPreviousReports((r) => [...r, report]);
             setReport((r) => ({ ...r, ...data }));
           });
       }
@@ -82,15 +84,6 @@ export default function Home() {
 
   return (
     <main className="absolute w-screen h-screen overflow-hidden md:relative md:w-full">
-      <button
-        className="top-0 left-0 w-32 h-16 absolute z-50 bg-white"
-        onClick={() => {
-          uploadReport();
-        }}
-      >
-        Test
-      </button>
-
       <video
         autoPlay
         playsInline
@@ -107,44 +100,84 @@ export default function Home() {
         <div className="absolute inset-0 bg-white animate-fadeOut z-50" />
       )}
       <div
-        className={`absolute -bottom-8 -right-8 w-[90vw] h-[90vw] rotate-3 duration-500 delay-300 md:w-96 md:h-96 ${
+        className={`absolute border-b-4 left-0 right-0 bottom-16 duration-500 delay-300 p-4 flex flex-col gap-4 ${
           reportLoading ? "-bottom-96" : ""
         }`}
       >
-        <Image
-          src="/paper.png"
-          fill
-          alt="Paper"
-          className="object-contain drop-shadow-lg"
-        />
-        <div className="absolute inset-0 font-grace pt-16 pl-12 text-blue-900 z-50 text-xl">
-          {report.object && <p className="ml-2">{report.object}</p>}
-          {(report.manufacturerIsRelevant || report.modelIsRelevant) && (
-            <p>
-              {report.manufacturer}
-              {report.model && ` ${report.model}`}
-            </p>
+        <div className="grid grid-cols-2 gap-4">
+          <InfoBox
+            title="Category"
+            value={report.objectCategory}
+            onValueChange={(objectCategory) => {
+              setReport((r) => ({ ...r, objectCategory }));
+            }}
+          />
+          <InfoBox
+            title="Object"
+            value={report.object}
+            onValueChange={(object) => {
+              setReport((r) => ({ ...r, object }));
+            }}
+          />
+          {(report.manufacturer ||
+            report.manufacturerIsIrrelevant !== true) && (
+            <InfoBox
+              title="Manufacturer"
+              value={report.manufacturer}
+              onValueChange={(manufacturer) => {
+                setReport((r) => ({ ...r, manufacturer }));
+              }}
+            />
           )}
-          {report.condition && (
-            <p>
-              <span className="underline">Condition:</span> {report.condition}
-            </p>
+          {(report.model || report.modelIsIrrelevant !== true) && (
+            <InfoBox
+              title="Model"
+              value={report.model}
+              onValueChange={(model) => {
+                setReport((r) => ({ ...r, model }));
+              }}
+            />
           )}
-          {report.damage && (
-            <p>
-              <span className="underline">Damage:</span> {report.damage}
-            </p>
+          <InfoBox
+            wide
+            title="Condition"
+            value={report.conditionOrDamage}
+            onValueChange={(conditionOrDamage) => {
+              setReport((r) => ({ ...r, conditionOrDamage }));
+            }}
+          />
+
+          {(report.serialNumberOrIdentifier ||
+            report.serialNumberOrIdentifierIsIrrelevant !== true) && (
+            <InfoBox
+              title="Identifier"
+              value={report.serialNumberOrIdentifier}
+              onValueChange={(serialNumberOrIdentifier) => {
+                setReport((r) => ({ ...r, serialNumberOrIdentifier }));
+              }}
+            />
           )}
           {/*<p>
             Serial Number: <br />
-          </p>
-          <p>
+            </p>
+            <p>
             Damage: <br />
-          </p>*/}
+            </p>*/}
         </div>
+        <Button onClick={() => uploadReport()}>Submit report</Button>
       </div>
-      <ActionText className="absolute left-16 top-16">
-        {shortCompliment ?? "Hello!"}
+      <ActionText
+        className="absolute left-16 top-16"
+        style={{
+          rotate: `${(report.latitude % 1) * 6 - 3}deg`,
+          animationName: `actionTextAppear${(previousReports.length % 2) + 1}`,
+          animationDuration: "2s",
+          animationTimingFunction: "cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+          animationFillMode: "forwards",
+        }}
+        key={previousReports.length}
+      >
+        {wittyComment ?? "Hello!"}
       </ActionText>
       <p className="text-white absolute left-16 top-32">
         {suggestionForMorePhotos ?? "Take a photo of an object to get started."}
@@ -152,3 +185,33 @@ export default function Home() {
     </main>
   );
 }
+
+const InfoBox = ({
+  wide,
+  value,
+  title,
+  onValueChange,
+}: {
+  wide?: boolean;
+  value?: string;
+  onValueChange: (v: string) => any;
+  title: string;
+}) => {
+  return (
+    <div
+      className={`border-dashed border-primary backdrop-blur-lg border p-2 flex flex-col items-center ${
+        value ? "" : "text-white/50"
+      } ${wide ? "col-span-2" : ""}`}
+    >
+      <div className="bg-primary -mt-6 text-black px-4 font-jaro rounded-sm">
+        {title}
+      </div>
+      <input
+        type="text"
+        value={value ?? ""}
+        onChange={(e) => onValueChange(e.target.value)}
+        className="bg-transparent text-white w-full text-center"
+      />
+    </div>
+  );
+};

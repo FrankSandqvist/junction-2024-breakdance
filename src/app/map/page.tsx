@@ -1,10 +1,8 @@
 "use client";
 
 import { Button } from "@/components/button";
-import { Logo } from "@/components/logo";
 import { Map } from "@/components/map";
 import { reportSchema } from "@/schema/report";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { z } from "zod";

@@ -10,6 +10,50 @@ export const POST = async (req: Request) => {
     apiKey: process.env.OPENAI_KEY,
   });
 
+  console.log([
+    {
+      role: "system",
+      content: `Your job is to gather relevant information about equipment being photographed.
+Specifically, what it is and its condition. Do not return the field, if the information is not available.
+For special cases where it is equipment that usually does not have a serial number, clear manufacturer or model, you can say it is irrelevant. And it will be removed from the user's UI.
+Do not include fields for things that cannot be gathered from the image.
+You can also provide a very short witty comment (for example, if's a fire extinguisher "That's fire! 🔥").
+You can also return a suggestion for more photos to be able to provide a more complete analysis (missing fields).
+When you are happy with the info gathered (all relevant fields filled), return no suggestion.
+
+IMPORTANT:
+ALL PICTURES ARE TO BE DIFFERENT ANGLES OF THE SAME THING, SO DON'T MAKE ASSUMPTIONS PURELY FROM THE ANGLE YOU CURRENTLY PROVIDED.
+DO NOT MAKE ASSUMPTIONS ABOUT ANY PARAMETER. IF IT IS NOT CLEAR, DO NOT ADD THE FIELD.
+NEVER REMOVE INFORMATION, ONLY ADD OR IMPROVE.`,
+    },
+    {
+      role: "user",
+      content: "We are analyzing object X.",
+    },
+
+    ...params.previousReports.flatMap((r: z.infer<typeof reportSchema>) => [
+      {
+        role: "user",
+        content: "Here is another photo of object X.",
+      },
+      {
+        role: "assistant",
+        content: JSON.stringify(r),
+      },
+    ]),
+    {
+      role: "user",
+      content: [
+        {
+          type: "image_url",
+          image_url: {
+            detail: "high",
+            url: `${params.image}`,
+          },
+        },
+      ],
+    },
+  ]);
   const aiRes = await openai.chat.completions.create({
     model: "gpt-4o-mini",
     messages: [
@@ -17,12 +61,31 @@ export const POST = async (req: Request) => {
         role: "system",
         content: `Your job is to gather relevant information about equipment being photographed.
 Specifically, what it is and its condition. Do not return the field, if the information is not available.
-For things that are not relevant for specific thing visible, return false.
+For special cases where it is equipment that usually does not have a serial number, clear manufacturer or model, you can say it is irrelevant. And it will be removed from the user's UI.
 Do not include fields for things that cannot be gathered from the image.
-You can also provide a short compliment (for example, if's a fire extinguisher "That's fire! 🔥") and a suggestion for more photos. 
-When you are happy with the info gathered, return no suggestion.
-DO NOT MAKE ASSUMPTIONS ABOUT ANY PARAMETER. IF IT IS NOT CLEAR, DO NOT ADD THE FIELD.`,
+You can also provide a very short witty comment (for example, if's a fire extinguisher "That's fire! 🔥").
+You can also return a suggestion for more photos to be able to provide a more complete analysis (missing fields).
+When you are happy with the info gathered (all relevant fields filled), return no suggestion.
+
+IMPORTANT:
+ALL PICTURES ARE TO BE DIFFERENT ANGLES OF THE SAME THING, SO DON'T MAKE ASSUMPTIONS PURELY FROM THE ANGLE YOU CURRENTLY PROVIDED.
+DO NOT MAKE ASSUMPTIONS ABOUT ANY PARAMETER. IF IT IS NOT CLEAR, DO NOT ADD THE FIELD.
+NEVER REMOVE INFORMATION, ONLY ADD OR IMPROVE.`,
       },
+      {
+        role: "user",
+        content: "We are analyzing object X.",
+      },
+      ...params.previousReports.flatMap((r: z.infer<typeof reportSchema>) => [
+        {
+          role: "user",
+          content: "Here is another photo of object X.",
+        },
+        {
+          role: "assistant",
+          content: JSON.stringify(r),
+        },
+      ]),
       {
         role: "user",
         content: [
@@ -33,10 +96,6 @@ DO NOT MAKE ASSUMPTIONS ABOUT ANY PARAMETER. IF IT IS NOT CLEAR, DO NOT ADD THE 
               url: `${params.image}`,
             },
           },
-          /*{
-            type: "text",
-            text: "What is in this image?",
-          },*/
         ],
       },
     ],
@@ -47,7 +106,7 @@ DO NOT MAKE ASSUMPTIONS ABOUT ANY PARAMETER. IF IT IS NOT CLEAR, DO NOT ADD THE 
           longitude: true,
         })
         .extend({
-          shortCompliment: z.string().nullable(),
+          wittyComment: z.string().nullable(),
           suggestionForMorePhotos: z.string().nullable(),
         }),
       "report"
@@ -55,6 +114,21 @@ DO NOT MAKE ASSUMPTIONS ABOUT ANY PARAMETER. IF IT IS NOT CLEAR, DO NOT ADD THE 
   });
 
   const response = JSON.parse(aiRes.choices[0].message.content!);
+
+  for (const key in response) {
+    if (
+      response[key] === null ||
+      response[key] === "" ||
+      response[key] === "N/A" ||
+      response[key] === "n/a" ||
+      response[key] === "unknown" ||
+      response[key] === "Unknown"
+    ) {
+      delete response[key];
+    }
+  }
+
+  console.log(response);
 
   return Response.json(response);
 };
