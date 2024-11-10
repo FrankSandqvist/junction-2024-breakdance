@@ -73,7 +73,7 @@ export default function Home() {
             }
             setSuggestionForMorePhotos(
               data.suggestionForMorePhotos
-                ? `${data.suggestionForMorePhotos} (tap screen again to take another photo)`
+                ? `${data.suggestionForMorePhotos} (Tap screen again to take another photo)`
                 : "Done! You can submit your report. Edit the fields if you want."
             );
             setPreviousReports((r) => [...r, report]);
