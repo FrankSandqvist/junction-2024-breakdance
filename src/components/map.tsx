@@ -10,8 +10,8 @@ const makeTransform = (lat: number[], lon: number[]) => {
   const X = [0, MAX_X, 0, MAX_X];
   const Y = [0, 0, MAX_Y, MAX_Y];
 
-  let A = [];
-  let b = [];
+  const A = [];
+  const b = [];
 
   for (let i = 0; i < 4; i++) {
     A.push([x[i], y[i], 1, 0, 0, 0, -x[i] * X[i], -y[i] * X[i]]);

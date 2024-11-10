@@ -41,7 +41,7 @@ export default function MapPage() {
       });
 
     return () => {
-      locationInterval.current && clearInterval(locationInterval.current);
+      if(locationInterval.current) clearInterval(locationInterval.current);
     };
   }, []);
 
@@ -117,7 +117,7 @@ export default function MapPage() {
             Reported damages
           </h1>
           <p className="text-white text-center">
-            Here's a map of all the reported damages of equipment in
+            Here{"'"}s a map of all the reported damages of equipment in
             Kaapelitehdas. <strong>Tap on the reports to view them!</strong>
           </p>
           <Map
