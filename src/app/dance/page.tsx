@@ -72,8 +72,9 @@ export default function Home() {
               setWittyComment(data.wittyComment);
             }
             setSuggestionForMorePhotos(
-              data.suggestionForMorePhotos ??
-                "Done! You can submit your report. Edit the fields if you want."
+              data.suggestionForMorePhotos
+                ? `${data.suggestionForMorePhotos} (tap screen again to take another photo)`
+                : "Done! You can submit your report. Edit the fields if you want."
             );
             setPreviousReports((r) => [...r, report]);
             setReport((r) => ({ ...r, ...data }));
